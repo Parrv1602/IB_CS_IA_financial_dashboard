@@ -98,7 +98,7 @@ else:
     elif options == "Monte Carlo Analysis":
        #Streamlit executes code from top to bottom, so error handle at the top
        if start_date > end_date or start_date == end_date:
-           st.subheader("Choose a start date greater than the end date")
+           st.subheader("Choose an end date greater than the start date")
        else:
 
            st.title("Monte Carlo analysis")
@@ -124,5 +124,6 @@ else:
                col2.metric(f"{ticker_name} volatility (%) from {start_date} to {end_date}", np.round(MCAnalysis.actual_vol(),3)*100)
                MCAnalysis.monte_carlo_simulations()
                MCAnalysis.plot_histogram()
+
 
 
