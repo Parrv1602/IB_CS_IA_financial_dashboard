@@ -98,7 +98,7 @@ else:
         elif options == "Monte Carlo Analysis":
        #Streamlit executes code from top to bottom, so error handle at the top
        if start_date > end_date or start_date == end_date:
-               st.subheader("Choose a start date greater than the end date")
+            st.subheader("Choose a start date greater than the end date")
        else:
             try:
                 st.title("Monte Carlo analysis")
@@ -128,6 +128,7 @@ else:
                     MCAnalysis.plot_histogram()
             except Exception as e:
                 st.subheader("If start date is 1 or 2 days before the end date, ensure the start date is not a saturday or sunday")
+
 
 
 
