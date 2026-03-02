@@ -95,36 +95,40 @@ else:
             alpha(ticker_data, index_name, start_date, end_date)
 
 
-    elif options == "Monte Carlo Analysis":
+        elif options == "Monte Carlo Analysis":
        #Streamlit executes code from top to bottom, so error handle at the top
        if start_date > end_date or start_date == end_date:
-           st.subheader("Choose an end date greater than the start date")
-           st.write("If start date is 1 day before the end date, ensure the start date is not a saturday or sunday")
+               st.subheader("Choose a start date greater than the end date")
        else:
+            try:
+                st.title("Monte Carlo analysis")
+                col1, col2 = st.columns(2)
+                close_data = ticker_data["Close"].iloc[-1]
+                end_stockPrice = close_data[ticker_name]
 
-           st.title("Monte Carlo analysis")
-           col1, col2 = st.columns(2)
-           close_data = ticker_data["Close"].iloc[-1]
-           end_stockPrice = close_data[ticker_name]
+                num_simulations = col1.slider("Select the number of simulations", 100, 1000)
+                steps = col1.slider(f"Number of days to run the simulation after {end_date}", 1, 100)
+                sigma = col2.slider("Select sigma (volatility %)", 0, 100)
+                drift = col2.slider("Select risk-free interest rate (%)", 0, 25)
 
-           num_simulations = col1.slider("Select the number of simulations", 100, 1000)
-           steps = col1.slider(f"Number of days to run the simulation after {end_date}", 1, 100)
-           sigma = col2.slider("Select sigma (volatility %)", 0, 100)
-           drift = col2.slider("Select risk-free interest rate (%)", 0, 25)
+                if steps == 0 or sigma == 0 or drift == 0:
+                    st.write("To simulate Monte Carlo simulations the above parameters must be greater than 0")
+                else:
+                    # variable in datetime, so extract the days only
+                    currency = Index_currency_dict[index_name]
+                    col1.metric(f"Stock price at {end_date}", f"{currency} {np.round(end_stockPrice, 2)}")
+                    num_days = steps
+                    MCAnalysis = MonteCarloAnalysis(ticker_name, index_name, ticker_data, end_stockPrice, start_date,
+                                                       end_date, num_simulations, sigma, drift, num_days)
 
-           if steps == 0 or sigma == 0 or drift == 0:
-               st.write("To simulate Monte Carlo simulations the above parameters must be greater than 0")
-           else:
-               #variable in datetime, so extract the days only
-               currency = Index_currency_dict[index_name]
-               col1.metric(f"Stock price at {end_date}", f"{currency} {np.round(end_stockPrice,2)}")
-               num_days = steps
-               MCAnalysis = MonteCarloAnalysis(ticker_name, index_name, ticker_data, end_stockPrice, start_date, end_date, num_simulations, sigma, drift, num_days)
+                    # if MCAnalysis.last_price():
+                    col2.metric(f"{ticker_name} volatility (%) from {start_date} to {end_date}",
+                                   np.round(MCAnalysis.actual_vol(), 3) * 100)
+                    MCAnalysis.monte_carlo_simulations()
+                    MCAnalysis.plot_histogram()
+            except Exception as e:
+                st.subheader("If start date is 1 or 2 days before the end date, ensure the start date is not a saturday or sunday")
 
-               #if MCAnalysis.last_price():
-               col2.metric(f"{ticker_name} volatility (%) from {start_date} to {end_date}", np.round(MCAnalysis.actual_vol(),3)*100)
-               MCAnalysis.monte_carlo_simulations()
-               MCAnalysis.plot_histogram()
 
 
 
